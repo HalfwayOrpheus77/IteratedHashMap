@@ -1,3 +1,4 @@
+import java.security.Key;
 import java.util.Iterator;
 
 /*
@@ -7,7 +8,7 @@ import java.util.Iterator;
  * For now, all of our keys will be Strings.
  */
 
- class DSHashMap<V> implements Iterable<V>{
+class DSHashMap<V> implements Iterable<V> {
     // The backing array - contains the values
     DSArrayList<DSArrayList<KVP>> a; // the backing DSArrayList
     int capacity; // Size of the backing array
@@ -19,14 +20,13 @@ import java.util.Iterator;
     // The same name as the class
     // public
     // no return type, not even void
-    public DSHashMap(){
+    public DSHashMap() {
         capacity = 2;
         a = new DSArrayList<>(capacity);
         numItems = 0;
         maxChainLength = 0;
         totalCount = 0;
     }
-
 
     /**
      * Add a key,value pair to the DSHashMap.
@@ -35,38 +35,38 @@ import java.util.Iterator;
      * @param key
      * @param value
      */
-    void put(String key, V value){
+    void put(String key, V value) {
 
         // Check to see if our DSHashMap is getting crowded
-        if(numItems > capacity/2){
+        if (numItems > capacity / 2) {
             rehash();
         }
 
         // Give us the location of this key's value in the backing array
         int location = hash(key);
-        if(a.get(location) == null){
+        if (a.get(location) == null) {
             a.put(location, new DSArrayList<KVP>(10));
             a.get(location).add(new KVP(key, value));
             numItems++;
         } else { // Already a chain here, with stuff in it
             // search that chain for our key.
-            for(int i = 0; i < a.get(location).length(); i++){
+            for (int i = 0; i < a.get(location).length(); i++) {
                 KVP kvp = a.get(location).get(i);
                 // If we find the key, replace the value
-                if(kvp.key.equals(key)){
+                if (kvp.key.equals(key)) {
                     a.get(location).replace(i, new KVP(key, value));
                     return;
                 }
-                if(i >= 3){
-                     System.out.println("OMG! 3! " + totalCount);
-                     totalCount++;
+                if (i >= 3) {
+                    System.out.println("OMG! 3! " + totalCount);
+                    totalCount++;
                 }
             }
             // If we don't find the key, create a new KVP and add it to the chain
             a.get(location).add(new KVP(key, value));
             numItems++;
             int chainLength = a.get(location).length;
-            if(chainLength > maxChainLength){
+            if (chainLength > maxChainLength) {
                 maxChainLength = chainLength;
                 System.out.println("New max chain length is " + maxChainLength);
             }
@@ -79,7 +79,7 @@ import java.util.Iterator;
      */
     private void rehash() {
         // Save a reference to the current backing array
-        DSArrayList<DSArrayList<KVP>> olda = a; 
+        DSArrayList<DSArrayList<KVP>> olda = a;
 
         // Create a new, larger backing array
         int newCapacity = 2 * this.capacity;
@@ -90,16 +90,17 @@ import java.util.Iterator;
         // Loop over old backing array
         this.numItems = 0;
         this.maxChainLength = 0;
-        for(DSArrayList<KVP> chain : olda){
-            if(chain == null) continue;
+        for (DSArrayList<KVP> chain : olda) {
+            if (chain == null)
+                continue;
 
-            for(KVP kvp : chain){
-                if(kvp == null) break;
+            for (KVP kvp : chain) {
+                if (kvp == null)
+                    break;
                 this.put(kvp.key, kvp.value);
             }
         }
     }
-
 
     /**
      * Return the value associated with this key
@@ -108,18 +109,18 @@ import java.util.Iterator;
      * @param key
      * @return The value of type V stored with this key
      */
-    V get(String key){
+    V get(String key) {
         int location = hash(key);
-        if(a.get(location) == null){
+        if (a.get(location) == null) {
             throw new IndexOutOfBoundsException("Key not found: " + key);
         } else { // Already a chain here, with stuff in it
             // search that chain for our key.
-            for(int i = 0; i < a.get(location).length(); i++){
+            for (int i = 0; i < a.get(location).length(); i++) {
                 KVP kvp = a.get(location).get(i);
-                System.out.printf("loc = %d, i = %d: Looking for %s, found %s\n", 
-                    location, i, key, kvp.key);
+                System.out.printf("loc = %d, i = %d: Looking for %s, found %s\n",
+                        location, i, key, kvp.key);
                 // If we find the key, replace the value
-                if(kvp.key.equals(key)){
+                if (kvp.key.equals(key)) {
                     return kvp.value;
                 }
             }
@@ -128,26 +129,24 @@ import java.util.Iterator;
         }
     }
 
-
     // This is the hash function. Tells where a string's value
     // should be stored in the backing array
-    int hash(String s){
+    int hash(String s) {
         int rv = 0;
 
-        for(int i = 0; i < s.length(); i++){
+        for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             rv = (rv * 7 + c) % capacity;
         }
         return rv;
     }
 
-    void fun(String s){
-        for(int i = 0; i < s.length(); i++){
+    void fun(String s) {
+        for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            System.out.println("Character " + c + "'s ASCII value is " + (int)c);
+            System.out.println("Character " + c + "'s ASCII value is " + (int) c);
         }
     }
-
 
     /**
      * Inner class for Key-Value pairs
@@ -156,36 +155,44 @@ import java.util.Iterator;
         String key;
         V value;
 
-        public KVP(String s, V v){
+        public KVP(String s, V v) {
             key = s;
             value = v;
         }
     }
 
     @Override
-    public Iterator<V> iterator(){
-        Iterator<V> it = new Iterator<>(){
+    public Iterator<V> iterator() {
+        Iterator<V> it = new Iterator<>() {
             int index = 0;
+            DSArrayList<DSArrayList<KVP>> a;
+
+            // True if my index has more items
+            // False if my index has no more items --> null
+            @Override
+            public boolean hasNext() {
+                //
+                return index < capacity && a.get(index) != null;
+            }
 
             @Override
-            public V next(){
-                V returnValue = a.get(key);
+            public V next() {
+                V returnValue = a.get(index);
                 index++;
                 return returnValue;
             }
 
-            @Override
-            public void remove(){
-                throw new UnsupportedOperationException();
-            }
+            /*
+             * //
+             * 
+             * @Override
+             * public void remove() {
+             * throw new UnsupportedOperationException();
+             * }
+             */
 
-            @Override
-            public boolean hasNext(){
-                return index < list.length
-                return index < capacity && [index] != null;
-        }
         };
         return it;
-        
+
     }
 }
