@@ -165,10 +165,18 @@ class DSHashMap<V> implements Iterable<V> {
     public Iterator<V> iterator() {
         Iterator<V> it = new Iterator<>() {
             int index = 0;
-            DSArrayList<DSArrayList<KVP>> a;
+            int chain = 0;
+
+            // String key = a.get(chain).get(index).key;
+            // DSArrayList<DSArrayList<KVP>> a;
 
             // True if my index has more items
             // False if my index has no more items --> null
+
+            // Checks if there are more items in the current chain
+            // If there are no more items, skip to the next chain that has items
+            // If get to the last chain and there are still no items return false
+            // If we arrive at a chain with items in it, return true
             @Override
             public boolean hasNext() {
                 //
