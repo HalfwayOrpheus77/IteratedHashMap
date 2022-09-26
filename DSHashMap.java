@@ -8,7 +8,7 @@ import java.util.Iterator;
  * For now, all of our keys will be Strings.
  */
 
-class DSHashMap<V> implements Iterable<V> {
+class DSHashMap<V> implements Iterable<String> {
     // The backing array - contains the values
     DSArrayList<DSArrayList<KVP>> a; // the backing DSArrayList
     int capacity; // Size of the backing array
@@ -162,8 +162,8 @@ class DSHashMap<V> implements Iterable<V> {
     }
 
     @Override
-    public Iterator<V> iterator() {
-        Iterator<V> it = new Iterator<>() {
+    public Iterator<String> iterator() {
+        Iterator<String> it = new Iterator<>() {
             int index = 0;
             int chain = 0;
 
@@ -179,28 +179,30 @@ class DSHashMap<V> implements Iterable<V> {
             // If we arrive at a chain with items in it, return true
             @Override
             public boolean hasNext() {
-                //
-                return index < capacity && a.get(index) != null;
+                while(a.get(chain) == null){
+                    index = 0;
+                    chain++;
+                    if(chain == capacity){
+                        return false;
+                    }
+                }
+                if(index == a.get(chain).length() && index == capacity){
+                    return false;
+                }
+                return true;
             }
 
             @Override
-            public V next() {
-                V returnValue = a.get(index);
+            public String next() {
+                String key = a.get(chain).get(index).key;
                 index++;
-                return returnValue;
+                if(a.get(chain).get(index) == null){
+                    chain++;
+                    index = 0;
+                }
+                return key;
             }
-
-            /*
-             * //
-             * 
-             * @Override
-             * public void remove() {
-             * throw new UnsupportedOperationException();
-             * }
-             */
-
         };
         return it;
-
     }
 }
